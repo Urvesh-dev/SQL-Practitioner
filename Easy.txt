@@ -1,0 +1,131 @@
+1. List title, rating and length for all films, longest first.
+QUERY:
+select f.title, f.length, f.rating 
+from film f 
+order by f.length desc;
+
+2.List the distinct ratings.
+QUERY:
+select DISTINCT(f.rating)
+from film f;
+
+3.Find films with rental_rate > 2.99 and length < 90.
+QUERY:
+select * 
+from film f 
+where f.rental_rate < 2.99 and f.length < 90;
+
+4.Count customers per store.
+QUERY:
+select COUNT(customer), store_id as store_name
+from customer
+group by store_id;
+
+5.Find active customers whose last name starts with “S”.
+QUERY:
+select * from customer c 
+where c.first_name like 'S%';
+
+6.Find films with “love” anywhere in the title, case-insensitive.
+QUERY:
+select * from film f 
+where f.title like '%love%';
+
+7.Count films per rating, keeping only ratings with more than 190 films (HAVING).
+QUERY:
+select f.title as films_name, f.rating 
+from film f
+group by f.film_id  
+having COUNT(f.rating ) < 190;
+
+8.Find the average rental_duration per rating.
+QUERY:
+select AVG(f.rental_duration) as average_rental_duration, f.rating
+from film f 
+group by f.rating;
+
+9.Find the top 10 customers by total payment amount.
+QUERY:
+select c.first_name, SUM(p.amount ) as total_payment from customer c 
+right join payment p 
+on c.customer_id = p.customer_id
+group by c.first_name
+order by total_payment desc
+limit 10;
+
+10.Join film to language and show the title and language name.
+QUERY:
+select f.title, l.name from film f 
+right join language l
+on f.language_id = l.language_id
+where f.title notnull;
+
+11.Show each customer’s full name, city and country (a 4-table join).
+select concat(c1.first_name, ' ', c1.last_name) as full_name, ci.city, co.country
+from customer c1
+join address a1 on c1.address_id = a1.address_id
+join city ci on a1.city_id = ci.city_id
+join country co on ci.country_id = co.country_id;
+
+12.Find films with no rows in inventory (LEFT JOIN ... IS NULL).
+QUERY:
+select * from film f 
+left join inventory i 
+on f.film_id = i.film_id
+where i.inventory_id is null;
+
+13.Count films per category, including categories with zero films.
+QUERY:
+select c.name, COUNT(f.title) from film f 
+join film_category fc 
+on f.film_id = fc.film_id 
+join category c on fc.category_id = c.category_id
+group by c.name;  
+
+14.Count films per actor.
+QUERY:
+select concat(a.first_name, ' ', a.last_name) as actor , COUNT(f.title) from film f 
+join film_actor fa 
+on f.film_id = fa.film_id 
+join actor a on fa.actor_id = a.actor_id 
+group by a.first_name, a.last_name;  
+
+15.List rentals that haven’t been returned.
+QUERY;
+select * from rental r 
+where r.return_date is null;
+
+16.Show each rental’s return_date, replaced with the text ‘Not returned’ when NULL (COALESCE).
+SELECT *, COALESCE(r.return_date::text, 'Not_Returned') AS status
+FROM rental AS r
+where r.return_date is null;
+
+17.Label films Short (<60), Medium (60–120) or Long (>120) with CASE WHEN.
+QUERY:
+select 
+	r.title, 
+	case
+		when r.length < 60 then 'Short'
+		when r.length > 60 and r.length < 120 then 'Medium'
+		when r.length > 120 then 'long'
+	end as duration
+from film as r;
+
+18.Count rentals per month with DATE_TRUNC.
+QUERY:
+select 
+	date_trunc('month', r.rental_date)::date as rental_month,
+	count(*) as rental_count
+from rental r 
+group by rental_month 
+order by rental_month; 
+
+19.Find the weekday with the most rentals (EXTRACT).
+QUERY:
+select
+	to_char(rental_date, 'DAY') as weekday,
+	COUNT(*) as rental_count
+from rental
+group by weekday
+order by rental_count DESC
+limit 1;
