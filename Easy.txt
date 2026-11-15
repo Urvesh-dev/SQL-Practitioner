@@ -129,3 +129,37 @@ from rental
 group by weekday
 order by rental_count DESC
 limit 1;
+
+20.Show each customer’s name as LAST, First and extract the email domain.
+QUERY;
+select 
+	c.last_name as last,
+	c.first_name as first,
+	split_part(c.email, '@', 2)
+from customer c;
+
+21.Find films whose title is longer than 20 characters.
+select * from film f 
+where length(f.title) > 20; 
+
+22.Find customers who made at least one payment above $10, once with DISTINCT.
+QUERY:
+select distinct * from customer c 
+right join payment p 
+on c.customer_id = p.customer_id 
+where p.amount >= 10;
+
+23.Find customers who made at least one payment above $10, once with GROUP BY.
+QUERY:
+select concat(c.first_name, ' ', c.last_name) as full_name from customer c 
+left join payment p 
+on c.customer_id = p.customer_id 
+where p.amount >= 10
+group by full_name;
+
+24.Produce every store × category combination with a CROSS JOIN.
+QUERY:
+select * from category c 
+cross join category c2;
+
+25.Combine all actor and customer first names with UNION, then UNION ALL, and compare the counts.
